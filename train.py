@@ -28,7 +28,7 @@ def midi_to_notes(midi_file):
             notes.append([note.start, note.end, note.pitch, note.velocity])
     return np.array(notes), midi_data
 
-# Load the MAESTRO dataset
+# Load the MAESTRO dataset (import locally or from google)
 data_dir = pathlib.Path('data/maestro-v2.0.0')
 if not data_dir.exists():
   tf.keras.utils.get_file(
@@ -57,9 +57,9 @@ if not all_notes:
 
 # Normalize the data
 scaler = StandardScaler()
-all_notes = np.vstack(all_notes)
+all_notes = np.vstack(all_notes) # converts to matrix
 scaler.fit(all_notes)
-all_notes_scaled = scaler.transform(all_notes)
+all_notes_scaled = scaler.transform(all_notes) # ensure all features are on the same scale 
 
 # Prepare the data for training
 sequence_length = 50
@@ -74,9 +74,10 @@ X = np.array(X)
 y = np.array(y)
 
 
-# Create the NN model
+# Create the NN model (sequential neural network - a stack of layers where the output of one is fed directly to the next)
+# LSTM Layers are for understanding the note structure/progression and Dense layers are for mapping the learned patterns (predicting future notes)
 model = models.Sequential([
-    layers.LSTM(128, input_shape=(sequence_length, 4), return_sequences=True),
+    layers.LSTM(128, input_shape=(sequence_length, 4), return_sequences=True), 
     layers.LSTM(128),
     layers.Dense(128, activation='relu'),
     layers.Dense(4)
